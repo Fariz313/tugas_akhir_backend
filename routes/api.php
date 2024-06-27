@@ -12,6 +12,8 @@ Route::get('/user', function (Request $request) {
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('profile', [UserController::class, 'profile']);
+    Route::put('profile', [UserController::class, 'updateProfile']);
     Route::apiResource('orders', OrderController::class);
     Route::apiResource('pickups', PickupController::class);
 });

@@ -9,7 +9,14 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::all();
+        $user = Auth::user();
+
+        if ($user->role === 'user') {
+            $orders = Order::where('user_id', $user->id)->get();
+        } else {
+            $orders = Order::all();
+        }
+
         return response()->json($orders);
     }
 
@@ -26,13 +33,18 @@ class OrderController extends Controller
             'status' => 'nullable|string',
         ]);
 
+        $date =null;
+        if($request->type=='one-time'){ 
+            $date=date("Y-m-d");
+        }
+
         $order = Order::create([
             'user_id' => Auth::id(), // Get the authenticated user ID
             'type' => $request->type,
             'address' => $request->address,
             'lat' => $request->lat,
             'lng' => $request->lng,
-            'date' => $request->date,
+            'date' => $date,
             'day' => $request->day,
             'stopped_at' => $request->stopped_at,
             'status' => $request->status ?? 'pending',

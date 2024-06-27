@@ -15,7 +15,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8',
             'role' => 'required|string'
         ]);
 
@@ -45,5 +45,38 @@ class UserController extends Controller
         $token = $user->createToken('authToken')->plainTextToken;
 
         return response()->json(['user' => $user, 'token' => $token], 200);
+    }
+    // Profile method
+    public function profile(Request $request)
+    {
+        return response()->json($request->user());
+    }
+
+    // Update profile method
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|max:255|unique:users,email,'.$user->id,
+            'password' => 'sometimes|required|string|min:8',
+        ]);
+
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+
+        if ($request->has('email')) {
+            $user->email = $request->email;
+        }
+
+        if ($request->has('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return response()->json(['user' => $user, 'message' => 'Profile updated successfully'], 200);
     }
 }
