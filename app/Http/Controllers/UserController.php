@@ -6,19 +6,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Validator;
 
 class UserController extends Controller
 {
     // Register method
     public function register(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'role' => 'required|string'
         ]);
-
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -32,11 +35,13 @@ class UserController extends Controller
     // Login method
     public function login(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
-
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json(['message' => 'Invalid login details'], 401);
         }
