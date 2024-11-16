@@ -10,6 +10,14 @@ use Validator;
 
 class UserController extends Controller
 {
+    public function getlist(Request $request){
+        $user = new User;
+        if($request->exists("role")){
+            $user = $user->where("role", $request->get("role"));
+        }
+        $user = $user->paginate();
+        return response()->json(['user' => $user, 'message' => 'User received successfully'], 201);
+    }
     // Register method
     public function register(Request $request)
     {

@@ -11,7 +11,10 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
+Route::get('users', [UserController::class, 'getlist']);
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('logout', [UserController::class, 'profile']);
+    Route::get('me', [UserController::class, 'profile']);
     Route::get('profile', [UserController::class, 'profile']);
     Route::put('profile', [UserController::class, 'updateProfile']);
     Route::apiResource('orders', OrderController::class);

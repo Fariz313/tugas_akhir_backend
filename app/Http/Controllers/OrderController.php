@@ -14,7 +14,7 @@ class OrderController extends Controller
         if ($user->role === 'user') {
             $orders = Order::where('user_id', $user->id)->get();
         } else {
-            $orders = Order::all();
+            $orders = Order::paginate();
         }
 
         return response()->json($orders);
