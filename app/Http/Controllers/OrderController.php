@@ -1,19 +1,46 @@
 <?php
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Validator;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
         if ($user->role === 'user') {
-            $orders = Order::where('user_id', $user->id)->get();
-        } else {
+            if($request->has('page')){
+                $orders = Order::where('user_id', $user->id)->paginate();
+            }else{
+                $orders = Order::select('orders.*','pickup_time')->where('orders.status','running')->where('user_id', $user->id)->leftJoin('pickups','pickups.order_id','orders.id')->get();
+            }
+        } else if($user->role === 'driver'){
+            $today = Carbon::today(); // Get today's date
+            $todayDayOfWeek = $today->dayOfWeek; // 0 (Sunday) to 6 (Saturday)
+            $orders = DB::table('orders')
+            ->select('orders.*', 'users.name','pickups.pickup_time as pickups_time')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->leftJoin('pickups','pickups.order_id','orders.id')
+            ->where(function ($query) use ($today, $todayDayOfWeek) {
+                $query->where(function ($subQuery) use ($today) {
+                    // One-time orders with today's date
+                    $subQuery->where('orders.type', 'one-time')
+                             ->whereDate('orders.date', $today);
+                })
+                ->orWhere(function ($subQuery) use ($todayDayOfWeek) {
+                    // Subscription orders with today's day of the week
+                    $subQuery->where('orders.type', 'subscription')
+                             ->where('orders.day', $todayDayOfWeek);
+                });
+            })
+            ->get();
+        }else {
             $orders = Order::paginate();
         }
 
@@ -72,6 +99,15 @@ class OrderController extends Controller
             'status' => 'sometimes|string',
         ]);
 
+        $order = Order::findOrFail($id);
+        $order->update($request->all());
+
+        return response()->json($order);
+    }
+    public function updateData(Request $request)
+    {
+        
+        $id = $request->input('id');
         $order = Order::findOrFail($id);
         $order->update($request->all());
 

@@ -34,16 +34,14 @@ class PickupController extends Controller
             'order_id' => 'required|exists:orders,id',
             'pickup_time' => 'nullable|date',
             'lat' => 'nullable|numeric',
-            'lng' => 'nullable|numeric',
-            'status' => 'nullable|string|max:50'
+            'lng' => 'nullable|numeric'
         ]);
 
         $pickup = Pickup::create([
             'order_id' => $request->order_id,
-            'pickup_time' => $request->pickup_time,
             'lat' => $request->lat,
             'lng' => $request->lng,
-            'status' => $request->status ?? 'pending',
+            'status' => $request->status ?? 'done',
         ]);
 
         return response()->json($pickup, 201);
