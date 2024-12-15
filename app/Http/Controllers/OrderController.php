@@ -52,8 +52,7 @@ class OrderController extends Controller
         $request->validate([
             'type' => 'required|string',
             'address' => 'required|string',
-            'lat' => 'nullable|numeric',
-            'lng' => 'nullable|numeric',
+            'multilatlng' => 'sometimes|nullable|string',
             'date' => 'nullable|date',
             'day' => 'nullable|integer',
             'stopped_at' => 'nullable|date',
@@ -71,6 +70,7 @@ class OrderController extends Controller
             'address' => $request->address,
             'lat' => $request->lat,
             'lng' => $request->lng,
+            'multilatlng' => $request->multilatlng,
             'date' => $date,
             'day' => $request->day,
             'stopped_at' => $request->stopped_at,
@@ -91,8 +91,7 @@ class OrderController extends Controller
         $request->validate([
             'type' => 'sometimes|string',
             'address' => 'sometimes|string',
-            'lat' => 'sometimes|nullable|numeric',
-            'lng' => 'sometimes|nullable|numeric',
+            'multilatlng' => 'sometimes|nullable|string',
             'date' => 'sometimes|nullable|date',
             'day' => 'sometimes|nullable|integer',
             'stopped_at' => 'sometimes|nullable|date',
